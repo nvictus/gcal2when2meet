@@ -126,7 +126,11 @@ function toggleRange(startTime, endTime, makeAvailable) {
   } catch (e) {
     errors.push(e);
     console.log(e);
-    logTime(startTime, endTime);
+    try {
+      logTime(startTime, endTime);
+    } catch (e2) {
+      console.log(e2);
+    }
   }
 }
 
@@ -155,11 +159,11 @@ function convertTime(gcalTime) {
   
 }
 
-function SelectFromHereByTouch(event) {
+window.SelectFromHereByTouch = function SelectFromHereByTouch(event) {
   SelectFromHere(event);
 }
 
-function SelectToHereByTouch(event) {
+window.SelectToHereByTouch = function SelectToHereByTouch(event) {
   SelectToHere(event);
 }
 
