@@ -6,10 +6,10 @@ document.body.appendChild(document.createElement('script')).src =
   "https://apis.google.com/js/client.js?onload=GCAL";
 
 // when2meet
-var clientId = "928220966147.apps.googleusercontent.com";
+var clientId = "gcal2when2meet2.apps.googleusercontent.com";
 // localhost
 //var clientId = "928220966147-mt5jcobiop2nh0461sa5iochjslrjg8f.apps.googleusercontent.com";
-var apiKey = "AIzaSyDSR5w4amX6UDxyuR0xylGj9hKh4jjKtZQ";
+var apiKey = "AIzaSyBBtM5IlDEK5TaY9G0ypRok8PO9kpNFrCM";
 var scopes = "https://www.googleapis.com/auth/calendar.readonly";
 
 function load() {
