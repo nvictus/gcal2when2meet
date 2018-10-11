@@ -6,17 +6,20 @@ document.body.appendChild(document.createElement('script')).src =
   "https://apis.google.com/js/client.js?onload=GCAL";
 
 // when2meet
-var clientId = "380166371492-pqrv7v58aac56h854qujmdvsv2b14455.apps.googleusercontent.com";
-// localhost
-//var clientId = "928220966147-mt5jcobiop2nh0461sa5iochjslrjg8f.apps.googleusercontent.com";
-var apiKey = "AIzaSyBBtM5IlDEK5TaY9G0ypRok8PO9kpNFrCM";
-var scopes = "https://www.googleapis.com/auth/calendar.readonly";
+var CLIENT_ID = "380166371492-pqrv7v58aac56h854qujmdvsv2b14455.apps.googleusercontent.com";
+var API_KEY = "AIzaSyBBtM5IlDEK5TaY9G0ypRok8PO9kpNFrCM";
+var SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
+var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
+var events = [];
+var calendars = [];
 
 function load() {
   console.log("load");
-  gapi.client.setApiKey(apiKey);
-  gapi.auth.init(function () {
-    gapi.client.load('calendar', 'v3', function () {
+  gapi.load('client:auth2', initClient);
+  
+  gapi.client.setApiKey(API_KEY);
+  
+  {
       reqCalendarList().then(function (calendars) {
         calendars = calendars.filter(function (c) { return c.selected; });
         return whenArray(calendars.map(reqEvents));
@@ -28,13 +31,36 @@ function load() {
                 " Note that when2meets that use days of the week instead of" +
                 " specific dates are not yet supported.");
         } else {
-          //console.log("events", flatten(events));
+          console.log("events", flatten(events));
           flatten(events).forEach(deselectEvent);
         }
       });
-    });
+    }
+}
+  
+/**
+ *  Initializes the API client library and sets up sign-in state
+ *  listeners.
+ */
+function initClient() {
+  gapi.client.init({
+    apiKey: API_KEY,
+    clientId: CLIENT_ID,
+    discoveryDocs: DISCOVERY_DOCS,
+    scope: SCOPES
+  }).then(function () {
+    // Listen for sign-in state changes.
+    gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+    // Handle the initial sign-in state.
+    updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+    
   });
 }
+
+function updateSigninStatus(isSignedIn) {
+  console.log("Sign In Status: " + isSignedIn);
+}  
 
 function reqCalendarList() {
   var deferred = $.Deferred();
@@ -43,8 +69,8 @@ function reqCalendarList() {
     console.log(res);
     if (res.code === 401) {
       gapi.auth.authorize({
-        client_id: clientId,
-        scope: scopes
+        client_id: CLIENT_ID,
+        scope: SCOPES
       }, function () {
         reqCalendarList().then(deferred.resolve);
       });
@@ -56,8 +82,6 @@ function reqCalendarList() {
 
   return deferred.promise();
 }
-
-var events = [];
 
 function reqEvents(calendar) {
   var deferred = $.Deferred();
@@ -82,6 +106,7 @@ function deselectEvent(event) {
   try {
     var startTime = convertTime(event.start.dateTime);
     var endTime = convertTime(event.end.dateTime) - 900;
+    console.log("S:" + startTime + " E:" + endTime);
     toggleRange(startTime, endTime, false);
   } catch (e) {
     errors.push(e);
@@ -100,6 +125,8 @@ function toggleRange(startTime, endTime, makeAvailable) {
     SelectStop();
   } catch (e) {
     errors.push(e);
+    console.log(e);
+    logTime(startTime, endTime);
   }
 }
 
@@ -125,6 +152,28 @@ function convertTime(gcalTime) {
     d.setHours(h);
   }
   return d.getTime() / 1000;
+  
+}
+
+function SelectFromHereByTouch(event) {
+  SelectFromHere(event);
+}
+
+function SelectToHereByTouch(event) {
+  SelectToHere(event);
+}
+
+function logTime(start, stop) {
+	triggerMouseEvent (document.getElementById('YouTime' + start), "touchstart");
+	triggerMouseEvent (document.getElementById('YouTime' + start), "touchmove");
+	triggerMouseEvent (document.getElementById('YouTime' + stop), "touchmove");
+	triggerMouseEvent (document.getElementById('YouTime' + stop), "touchend");
+}
+
+function triggerMouseEvent (node, eventType) {
+    var clickEvent = document.createEvent ('MouseEvents');
+    clickEvent.initEvent (eventType, true, true);
+    node.dispatchEvent (clickEvent);
 }
 
 window.GCAL = load;
