@@ -6,7 +6,7 @@ document.body.appendChild(document.createElement('script')).src =
   "https://apis.google.com/js/client.js?onload=GCAL";
 
 // when2meet
-var clientId = "gcal2when2meet2.apps.googleusercontent.com";
+var clientId = "380166371492-pqrv7v58aac56h854qujmdvsv2b14455.apps.googleusercontent.com";
 // localhost
 //var clientId = "928220966147-mt5jcobiop2nh0461sa5iochjslrjg8f.apps.googleusercontent.com";
 var apiKey = "AIzaSyBBtM5IlDEK5TaY9G0ypRok8PO9kpNFrCM";
