@@ -1,7 +1,7 @@
 (function () {
 
 document.body.appendChild(document.createElement('script')).src = 
-  "http://code.jquery.com/jquery-1.9.0.min.js";
+  "https://code.jquery.com/jquery-1.9.0.min.js";
 document.body.appendChild(document.createElement('script')).src =
   "https://apis.google.com/js/client.js?onload=GCAL";
 
