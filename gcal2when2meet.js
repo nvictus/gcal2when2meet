@@ -18,8 +18,9 @@ function load() {
   gapi.load('client:auth2', initClient);
   
   gapi.client.setApiKey(API_KEY);
-  
-  {
+}
+	
+function go() {
       reqCalendarList().then(function (calendars) {
         calendars = calendars.filter(function (c) { return c.selected; });
         return whenArray(calendars.map(reqEvents));
@@ -35,7 +36,6 @@ function load() {
           flatten(events).forEach(deselectEvent);
         }
       });
-    }
 }
   
 /**
@@ -54,6 +54,8 @@ function initClient() {
     // Listen for sign-in state changes.
     gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
     gapi.auth2.getAuthInstance().signIn();
+  }).then(function() {
+    go();
   });
 }
 
