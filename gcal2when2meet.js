@@ -149,16 +149,16 @@ window.SelectToHereByTouch = function SelectToHereByTouch(event) {
 }
 
 function logTime(start, stop) {
-	triggerMouseEvent (document.getElementById('YouTime' + start), "touchstart");
-	triggerMouseEvent (document.getElementById('YouTime' + start), "touchmove");
-	triggerMouseEvent (document.getElementById('YouTime' + stop), "touchmove");
-	triggerMouseEvent (document.getElementById('YouTime' + stop), "touchend");
+  triggerMouseEvent (document.getElementById('YouTime' + start), "touchstart");
+  triggerMouseEvent (document.getElementById('YouTime' + start), "touchmove");
+  triggerMouseEvent (document.getElementById('YouTime' + stop), "touchmove");
+  triggerMouseEvent (document.getElementById('YouTime' + stop), "touchend");
 }
 
 function triggerMouseEvent (node, eventType) {
-    var clickEvent = document.createEvent ('MouseEvents');
-    clickEvent.initEvent (eventType, true, true);
-    node.dispatchEvent (clickEvent);
+  var clickEvent = document.createEvent ('MouseEvents');
+  clickEvent.initEvent (eventType, true, true);
+  node.dispatchEvent (clickEvent);
 }
 
 window.GCAL = load;
