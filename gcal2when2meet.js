@@ -18,7 +18,7 @@ function load() {
 }
 
 function go() {
-  reqCalendarList(false).then(function (calendars) {
+  reqCalendarList().then(function (calendars) {
     calendars = calendars.filter(function (c) { return c.selected; });
     return Promise.all(calendars.map(reqEvents));
   }).then(function (events) {
@@ -62,22 +62,13 @@ function updateSigninStatus(isSignedIn) {
   console.log("Sign In Status: " + isSignedIn);
 }
 
-function reqCalendarList(triedAuth) {
+function reqCalendarList() {
   console.log("reqCalendarList");
 
   gapi.client.calendar.calendarList.list().then(function (res) {
     console.log(res);
     if (res.code === 401) {
-      if (!triedAuth) {
-        gapi.auth.authorize({
-          client_id: CLIENT_ID,
-          scope: SCOPES
-        }, function () {
-          reqCalendarList(true);
-        });
-      } else {
-        console.log("Error: Couldn't authenticate.");
-      }
+      console.log("Error: Couldn't authenticate.");
     } else {
       console.log("authorized!");
       return Promise.resolve(res.items);
