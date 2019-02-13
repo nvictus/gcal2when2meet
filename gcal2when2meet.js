@@ -65,26 +65,24 @@ function updateSigninStatus(isSignedIn) {
 function reqCalendarList() {
   console.log("reqCalendarList");
 
-  gapi.client.calendar.calendarList.list().then(function (res) {
-    console.log(res);
-    if (res.code === 401) {
-      console.log("Error: Couldn't authenticate.");
-    } else {
-      console.log("authorized!");
-      return Promise.resolve(res.items);
-    }
+  return gapi.client.calendar.calendarList.list().then(function (response) {
+    console.log("authorized!");
+    console.log(response.result);
+    return Promise.resolve(response.result);
+  }, function(response) {
+    console.log("Error fetching calendar list!");
   });
 }
 
 function reqEvents(calendar) {
-  gapi.client.calendar.events.list({
+  return gapi.client.calendar.events.list({
     calendarId: calendar.id,
     singleEvents: true, // expand recurring events
     timeMin: new Date(TimeOfSlot[0] * 1000).toISOString(),
     timeMax: new Date(TimeOfSlot[TimeOfSlot.length-1] * 1000).toISOString()
-  }).then(function (res) {
-    console.log(res);
-    return Promise.resolve(res.items);
+  }).then(function (response) {
+    console.log(response);
+    return Promise.resolve(response.result);
   });
 }
 
