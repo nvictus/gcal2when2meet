@@ -19,6 +19,7 @@ function load() {
 
 function go() {
   reqCalendarList().then(function (calendars) {
+    console.log(calendars);
     calendars = calendars.filter(function (c) { return c.selected; });
     return Promise.all(calendars.map(reqEvents));
   }).then(function (events) {
@@ -68,7 +69,7 @@ function reqCalendarList() {
   return gapi.client.calendar.calendarList.list().then(function (response) {
     console.log("authorized!");
     console.log(response.result);
-    return Promise.resolve(response.result);
+    return Promise.resolve(response.result.items);
   }, function(response) {
     console.log("Error fetching calendar list!");
   });
@@ -82,7 +83,7 @@ function reqEvents(calendar) {
     timeMax: new Date(TimeOfSlot[TimeOfSlot.length-1] * 1000).toISOString()
   }).then(function (response) {
     console.log(response);
-    return Promise.resolve(response.result);
+    return Promise.resolve(response.result.items);
   });
 }
 
