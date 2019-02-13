@@ -19,7 +19,6 @@ function load() {
 
 function go() {
   reqCalendarList().then(function (calendars) {
-    console.log(calendars);
     calendars = calendars.filter(function (c) { return c.selected; });
     return Promise.all(calendars.map(reqEvents));
   }).then(function (events) {
@@ -30,7 +29,7 @@ function go() {
             " Note that when2meets that use days of the week instead of" +
             " specific dates are not yet supported.");
     } else {
-      console.log("events", flatten(events));
+      // console.log("events", flatten(events));
       flatten(events).forEach(deselectEvent);
     }
   });
@@ -64,11 +63,9 @@ function updateSigninStatus(isSignedIn) {
 }
 
 function reqCalendarList() {
-  console.log("reqCalendarList");
-
   return gapi.client.calendar.calendarList.list().then(function (response) {
     console.log("authorized!");
-    console.log(response.result);
+    // console.log(response.result);
     return Promise.resolve(response.result.items);
   }, function(response) {
     console.log("Error fetching calendar list!");
@@ -82,7 +79,7 @@ function reqEvents(calendar) {
     timeMin: new Date(TimeOfSlot[0] * 1000).toISOString(),
     timeMax: new Date(TimeOfSlot[TimeOfSlot.length-1] * 1000).toISOString()
   }).then(function (response) {
-    console.log(response);
+    // console.log(response);
     return Promise.resolve(response.result.items);
   });
 }
@@ -93,7 +90,7 @@ function deselectEvent(event) {
   try {
     var startTime = convertTime(event.start.dateTime);
     var endTime = convertTime(event.end.dateTime) - 900;
-    console.log("S:" + startTime + " E:" + endTime);
+    // console.log("S:" + startTime + " E:" + endTime);
     toggleRange(startTime, endTime, false);
   } catch (e) {
     errors.push(e);
@@ -112,11 +109,11 @@ function toggleRange(startTime, endTime, makeAvailable) {
     SelectStop();
   } catch (e) {
     errors.push(e);
-    console.log(e);
+    // console.log(e);
     try {
       logTime(startTime, endTime);
     } catch (e2) {
-      console.log(e2);
+      // console.log(e2);
     }
   }
 }
