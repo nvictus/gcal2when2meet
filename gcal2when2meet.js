@@ -1,7 +1,5 @@
 (function () {
 
-document.body.appendChild(document.createElement('script')).src = 
-  "https://code.jquery.com/jquery-1.9.0.min.js";
 document.body.appendChild(document.createElement('script')).src =
   "https://apis.google.com/js/client.js?onload=GCAL";
 
@@ -10,34 +8,33 @@ var CLIENT_ID = "380166371492-pqrv7v58aac56h854qujmdvsv2b14455.apps.googleuserco
 var API_KEY = "AIzaSyBBtM5IlDEK5TaY9G0ypRok8PO9kpNFrCM";
 var SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
 var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
-var events = [];
 var calendars = [];
 
 function load() {
   console.log("load");
   gapi.load('client:auth2', initClient);
-  
+
   gapi.client.setApiKey(API_KEY);
 }
-	
+
 function go() {
-      reqCalendarList().then(function (calendars) {
-        calendars = calendars.filter(function (c) { return c.selected; });
-        return whenArray(calendars.map(reqEvents));
-      }).done(function (events) {
-        events = events.filter(function (es) { return es; });
-        selectAll();
-        if (events.length === 0) {
-          alert("Didn't find any events in this time period." +
-                " Note that when2meets that use days of the week instead of" +
-                " specific dates are not yet supported.");
-        } else {
-          console.log("events", flatten(events));
-          flatten(events).forEach(deselectEvent);
-        }
-      });
+  reqCalendarList(false).then(function (calendars) {
+    calendars = calendars.filter(function (c) { return c.selected; });
+    return Promise.all(calendars.map(reqEvents));
+  }).then(function (events) {
+    events = events.filter(function (es) { return es; });
+    selectAll();
+    if (events.length === 0) {
+      alert("Didn't find any events in this time period." +
+            " Note that when2meets that use days of the week instead of" +
+            " specific dates are not yet supported.");
+    } else {
+      console.log("events", flatten(events));
+      flatten(events).forEach(deselectEvent);
+    }
+  });
 }
-  
+
 /**
  *  Initializes the API client library and sets up sign-in state
  *  listeners.
@@ -61,44 +58,41 @@ function initClient() {
 
 function updateSigninStatus(isSignedIn) {
   console.log("Sign In Status: " + isSignedIn);
-}  
+}
 
-function reqCalendarList() {
-  var deferred = $.Deferred();
+function reqCalendarList(triedAuth) {
+  console.log("reqCalendarList");
 
-  gapi.client.calendar.calendarList.list().execute(function (res) {
+  gapi.client.calendar.calendarList.list().then(function (res) {
     console.log(res);
     if (res.code === 401) {
-      gapi.auth.authorize({
-        client_id: CLIENT_ID,
-        scope: SCOPES
-      }, function () {
-        reqCalendarList().then(deferred.resolve);
-      });
+      if (!triedAuth) {
+        gapi.auth.authorize({
+          client_id: CLIENT_ID,
+          scope: SCOPES
+        }, function () {
+          reqCalendarList(true);
+        });
+      } else {
+        console.log("Error: Couldn't authenticate.");
+      }
     } else {
       console.log("authorized!");
-      deferred.resolve(res.items);
+      return Promise.resolve(res.items);
     }
   });
-
-  return deferred.promise();
 }
 
 function reqEvents(calendar) {
-  var deferred = $.Deferred();
-
   gapi.client.calendar.events.list({
     calendarId: calendar.id,
     singleEvents: true, // expand recurring events
     timeMin: new Date(TimeOfSlot[0] * 1000).toISOString(),
     timeMax: new Date(TimeOfSlot[TimeOfSlot.length-1] * 1000).toISOString()
-  }).execute(function (res) {
-    events.push(res);
+  }).then(function (res) {
     console.log(res);
-    deferred.resolve(res.items);
+    return Promise.resolve(res.items);
   });
-
-  return deferred.promise();
 }
 
 var errors = [];
@@ -140,12 +134,6 @@ function flatten(arrs) {
   return arrs.reduceRight(function (a1, a2) { return a1.concat(a2); });
 }
 
-function whenArray(promiseArr) {
-  return $.when.apply($, promiseArr).then(function () {
-    return Array.prototype.slice.call(arguments);
-  });
-}
-
 function convertTime(gcalTime) {
   var d = new Date(gcalTime);
   // if not on a quarter hour increment
@@ -157,7 +145,7 @@ function convertTime(gcalTime) {
     d.setHours(h);
   }
   return d.getTime() / 1000;
-  
+
 }
 
 window.SelectFromHereByTouch = function SelectFromHereByTouch(event) {
@@ -183,6 +171,5 @@ function triggerMouseEvent (node, eventType) {
 
 window.GCAL = load;
 window.GCAL.errors = errors;
-window.GCAL.events = events;
 
 }());
