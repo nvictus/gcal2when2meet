@@ -50,8 +50,10 @@ function initClient() {
     updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
     // Listen for sign-in state changes.
     gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+    console.log("Signing in...");
     gapi.auth2.getAuthInstance().signIn();
   }).then(function() {
+    console.log("Going...");
     go();
   });
 }
