@@ -47,7 +47,8 @@ function initClient() {
     apiKey: API_KEY,
     clientId: CLIENT_ID,
     discoveryDocs: DISCOVERY_DOCS,
-    scope: SCOPES
+    scope: SCOPES,
+    plugin_name: "foo"
   }).then(function () {
     // Listen for sign-in state changes.
     gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
