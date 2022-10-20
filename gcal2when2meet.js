@@ -91,14 +91,14 @@ function gisAuthorize() {
 }
 
 // Fetch all events in google calendars
-// Select all events on when2meet, then de-select google calendar events
+// Select all times on when2meet, then de-select times of google calendar events
 function main() {
   getCalendarList().then( (calendars) => {
     calendars = calendars.filter( (cal) => { return cal.selected; });
     return Promise.all(calendars.map(getEvents));
   }).then( (events) => {
     events = events.filter( (es) => { return es; });
-    _selectAllEvents();
+    _selectAllTimeSlots();
     if (events.length === 0) {
       alert("Didn't find any events in this time period." +
             " Note that when2meets that use days of the week instead of" +
@@ -130,7 +130,7 @@ function getEvents(calendar) {
   });
 }
 
-function _selectAllEvents() {
+function _selectAllTimeSlots() {
   _toggleRange(TimeOfSlot[0], TimeOfSlot[TimeOfSlot.length-1], true);
 }
 
