@@ -1,7 +1,7 @@
 (function () {
 
-document.body.appendChild(document.createElement('script')).src = "https://accounts.google.com/gsi/client?onload=gisLoad";
-document.body.appendChild(document.createElement('script')).src = "https://apis.google.com/js/client.js?onload=gitInit";
+document.body.appendChild(document.createElement('script')).src = "https://accounts.google.com/gsi/client?onload=gisInit";
+document.body.appendChild(document.createElement('script')).src = "https://apis.google.com/js/client.js?onload=gapiLoad";
 
 var CLIENT_ID = "296109782810-eul22gnapke0rrf4glt74mqpk7trdjov.apps.googleusercontent.com";
 var API_KEY = "AIzaSyBHvdAgKKGarEzuA3-n0KNuiSpny8z9hbA";
