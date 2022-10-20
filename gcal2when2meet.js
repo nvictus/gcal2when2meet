@@ -1,25 +1,56 @@
 (function () {
 
-document.body.appendChild(document.createElement('script')).src = "https://accounts.google.com/gsi/client";
-document.body.appendChild(document.createElement('script')).src = "https://apis.google.com/js/client.js?onload=GCAL";
+document.body.appendChild(document.createElement('script')).src = "https://accounts.google.com/gsi/client?onload=gisLoad";
+document.body.appendChild(document.createElement('script')).src = "https://apis.google.com/js/client.js?onload=gitInit";
 
 var CLIENT_ID = "296109782810-eul22gnapke0rrf4glt74mqpk7trdjov.apps.googleusercontent.com";
 var API_KEY = "AIzaSyBHvdAgKKGarEzuA3-n0KNuiSpny8z9hbA";
 var SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
-var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
+var DISCOVERY_DOC = "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest";
 var calendars = [];
 var errors = [];
+var client;
+var access_token;
+var gisInited;
+var gapiInited;
 
-function load() {
-  console.log("gcalw2m::load");
-  client = google.accounts.oauth2.initCodeClient({
+function gisInit() {
+  console.log("gcalw2m::initClient");
+  client = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
     scope: SCOPES,
     ux_mode: 'popup',
-    callback: main,
+    callback: (response) => {
+      console.log(response);
+      access_token = response.access_token;
+    },
   });
-  client.requestCode();
-  gapi.client.setApiKey(API_KEY);
+  client.requestAccessToken();
+  gisInited = true;
+}
+
+function getToken() {
+  client.requestAccessToken();
+}
+
+function revokeToken() {
+  google.accounts.oauth2.revoke(access_token, () => {console.log('access token revoked')});
+}
+
+function gapiLoad() {
+    gapi.load('client', gapiInit);
+}
+
+function gapiInit() {
+  gapi.client.init({
+    // NOTE: OAuth2 'scope' and 'client_id' parameters have moved to initTokenClient().
+  })
+  .then(function() {
+    // Load the Calendar API discovery document.
+    gapi.client.load(DISCOVERY_DOC);
+    gapi.client.setApiKey(API_KEY);
+    gapiInited = true;
+  });
 }
 
 function main() {
@@ -134,7 +165,7 @@ function triggerMouseEvent (node, eventType) {
   node.dispatchEvent (clickEvent);
 }
 
-window.GCAL = load;
-window.GCAL.errors = errors;
+window.gisInit = gisInit;
+window.gapiLoad = gapiLoad;
 
 }());
