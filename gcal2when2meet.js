@@ -1,7 +1,6 @@
 (function () {
 
-document.body.appendChild(document.createElement('script')).src = "https://accounts.google.com/gsi/client?onload=gisInit";
-document.body.appendChild(document.createElement('script')).src = "https://apis.google.com/js/client.js?onload=gapiLoad";
+// https://developers.google.com/identity/oauth2/web/guides/migration-to-gis#gapi-callback
 
 var CLIENT_ID = "296109782810-eul22gnapke0rrf4glt74mqpk7trdjov.apps.googleusercontent.com";
 var API_KEY = "AIzaSyBHvdAgKKGarEzuA3-n0KNuiSpny8z9hbA";
@@ -9,28 +8,46 @@ var SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
 var DISCOVERY_DOC = "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest";
 var calendars = [];
 var errors = [];
-var client;
+var tokenClient;
 var access_token;
 var gisInited;
 var gapiInited;
 
+const loadDynamicScript = (script_id, url, callback) => {
+  // https://cleverbeagle.com/blog/articles/tutorial-how-to-load-third-party-scripts-dynamically-in-javascript
+  const existingScript = document.getElementById(script_id);
+
+  if (!existingScript) {
+    const script = document.createElement('script');
+    script.src = url;
+    script.id = script_id;
+    document.body.appendChild(script);
+    script.onload = () => {
+      if (callback) callback();
+    };
+  }
+
+  if (existingScript && callback) callback();
+};
+
 function gisInit() {
   console.log("gcalw2m::initClient");
-  client = google.accounts.oauth2.initTokenClient({
+  tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
     scope: SCOPES,
     ux_mode: 'popup',
     callback: (response) => {
       console.log(response);
       access_token = response.access_token;
+      main()
     },
   });
-  client.requestAccessToken();
   gisInited = true;
+  loadDynamicScript("gapi", "https://apis.google.com/js/client.js", gapiLoad);
 }
 
 function getToken() {
-  client.requestAccessToken();
+  tokenClient.requestAccessToken();
 }
 
 function revokeToken() {
@@ -50,6 +67,7 @@ function gapiInit() {
     gapi.client.load(DISCOVERY_DOC);
     gapi.client.setApiKey(API_KEY);
     gapiInited = true;
+    tokenClient.requestAccessToken();
   });
 }
 
@@ -167,5 +185,8 @@ function triggerMouseEvent (node, eventType) {
 
 window.gisInit = gisInit;
 window.gapiLoad = gapiLoad;
+window.GCAL = getToken;
+
+loadDynamicScript("gis", "https://accounts.google.com/gsi/client", gisInit);
 
 }());
